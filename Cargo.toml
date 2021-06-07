@@ -1,0 +1,15 @@
+[package]
+name = "deployer"
+version = "0.1.0"
+authors = ["adeyahya <adeyahyaprasetyo@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "3"
+serde = "1.0.126"
+serde_json = "1"
+hmac = "0.6.2"
+sha2 = "0.7.1"
+hex = "0.4.3"
