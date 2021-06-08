@@ -21,6 +21,10 @@ async fn main() -> std::io::Result<()> {
 
     // set up database connection pool
     let connspec = std::env::var("DATABASE_URL").expect("DATABASE_URL");
+    let port = std::env::var("PORT").unwrap_or("3000".to_string());
+
+    println!("running on port {}", port);
+
     let manager = ConnectionManager::<SqliteConnection>::new(connspec);
     let pool = r2d2::Pool::builder()
         .build(manager)
@@ -40,7 +44,7 @@ async fn main() -> std::io::Result<()> {
             // POST auth/login
             .service(actions::auth::login::default)
     })
-    .bind("127.0.0.1:8080")?
+    .bind(format!("127.0.0.1:{}", port))?
     .run()
     .await
 }

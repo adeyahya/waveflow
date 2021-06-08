@@ -12,5 +12,13 @@
       "www"
     ]
   },
-  "private": true
+  "private": true,
+  "scripts": {
+    "dev": "concurrently yarn:dev:*",
+    "dev:www": "yarn --cwd www dev",
+    "dev:server": "cargo-watch -x 'run' -C ./server"
+  },
+  "devDependencies": {
+    "concurrently": "^6.2.0"
+  }
 }
