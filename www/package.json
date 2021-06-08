@@ -1,0 +1,44 @@
+{
+  "name": "@waveflow/www",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Ade Yahya"
+  },
+  "description": "Starter pack using Vite, React, Typescript, Chakra and Cypress",
+  "keywords": [
+    "vite",
+    "react",
+    "typescript",
+    "chakra"
+  ],
+  "repository": {
+    "url": "https://github.com/adeyahya/waveflow"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "yarn dev",
+    "test:type": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^1.0.5",
+    "@chakra-ui/react": "^1.3.3",
+    "@emotion/react": "^11.1.5",
+    "@emotion/styled": "^11.1.5",
+    "concurrently": "^6.0.0",
+    "framer-motion": "^3.7.0",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
+    "react-icons": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^15.12.2",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@vitejs/plugin-react-refresh": "^1.1.0",
+    "typescript": "^4.1.2",
+    "vite": "^2.0.1",
+    "vite-aliases": "^0.5.0"
+  }
+}
