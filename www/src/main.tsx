@@ -1,4 +1,4 @@
 import ReactDOM from "react-dom";
-import { WrappedApp } from "./wrappedApp";
+import App from "~app";
 
-ReactDOM.render(WrappedApp, document.getElementById("root"));
+ReactDOM.render(App, document.getElementById("root"));
