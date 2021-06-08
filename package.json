@@ -1,0 +1,16 @@
+{
+  "name": "waveflow",
+  "version": "1.0.0",
+  "description": "wave in flow",
+  "main": "index.js",
+  "repository": "git@github.com:adeyahya/waveflow.git",
+  "author": "Ade Yahya",
+  "license": "MIT",
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "www"
+    ]
+  },
+  "private": true
+}
