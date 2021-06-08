@@ -2,8 +2,7 @@ use actix_web::{post, web, HttpResponse, Responder};
 use diesel::prelude::*;
 use uuid::Uuid;
 
-use crate::models::Workflow;
-use crate::{DbPool, HttpErrorMessage, WorkflowRequest};
+use crate::*;
 
 #[post("/workflows")]
 async fn default(pool: web::Data<DbPool>, form: web::Json<WorkflowRequest>) -> impl Responder {
@@ -11,7 +10,7 @@ async fn default(pool: web::Data<DbPool>, form: web::Json<WorkflowRequest>) -> i
 
   let conn = pool.get().expect("couldn't get db connection from pool");
 
-  let workflow = Workflow {
+  let workflow = models::Workflow {
     id: Uuid::new_v4().to_string(),
     slug: form.slug.to_owned(),
     secret: Uuid::new_v4().to_string(),

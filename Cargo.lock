@@ -517,25 +517,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "deployer"
-version = "0.1.0"
-dependencies = [
- "actix-web",
- "diesel",
- "dotenv",
- "env_logger",
- "hex",
- "hmac",
- "jwt",
- "log",
- "r2d2",
- "serde",
- "serde_json",
- "sha2",
- "uuid",
-]
-
-[[package]]
 name = "derive-error-chain"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2039,6 +2020,25 @@ name = "wasm-bindgen-shared"
 version = "0.2.74"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7cff876b8f18eed75a66cf49b65e7f967cb354a7aa16003fb55dbfd25b44b4f"
+
+[[package]]
+name = "waveflow"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "diesel",
+ "dotenv",
+ "env_logger",
+ "hex",
+ "hmac",
+ "jwt",
+ "log",
+ "r2d2",
+ "serde",
+ "serde_json",
+ "sha2",
+ "uuid",
+]
 
 [[package]]
 name = "widestring"

@@ -1,5 +1,5 @@
 [package]
-name = "deployer"
+name = "waveflow"
 version = "0.1.0"
 authors = ["adeyahya <adeyahyaprasetyo@gmail.com>"]
 edition = "2018"

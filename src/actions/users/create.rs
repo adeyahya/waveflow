@@ -1,8 +1,5 @@
-use crate::{
-  calculate_sha256_signature, models, DbPool, HttpErrorMessage, UserResponse, WebConfig,
-};
+use crate::*;
 use actix_web::{post, web, HttpResponse, Responder};
-use diesel::prelude::*;
 
 #[post("/users")]
 async fn default(

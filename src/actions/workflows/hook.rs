@@ -1,6 +1,5 @@
+use crate::*;
 use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
-
-use crate::{calculate_sha256_signature, get_signature};
 
 #[post("/workflows/hook")]
 async fn default(

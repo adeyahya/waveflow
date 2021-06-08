@@ -1,6 +1,5 @@
+use crate::*;
 use actix_web::{get, web, HttpResponse, Responder};
-use deployer::*;
-use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 
 type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
