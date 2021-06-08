@@ -208,7 +208,7 @@ async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
 
     let web_config = WebConfig {
-        app_secret: std::env::var("DATABASE_URL").expect("DATABASE_URL"),
+        app_secret: std::env::var("APP_SECRET").expect("APP_SECRET"),
     };
 
     // set up database connection pool
