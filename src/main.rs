@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate diesel;
 extern crate hex;
 
@@ -9,8 +8,6 @@ use diesel::r2d2::{self, ConnectionManager};
 use env_logger;
 
 mod actions;
-mod models;
-mod schema;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
