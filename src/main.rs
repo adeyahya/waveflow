@@ -3,22 +3,18 @@ extern crate diesel;
 extern crate hex;
 
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use deployer::*;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use env_logger;
-use hmac::{Hmac, Mac};
 use log;
 use serde::{Deserialize, Serialize};
-use sha2::Sha256;
 use uuid::Uuid;
 
 mod models;
 mod schema;
 
 type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
-
-// Create alias for HMAC-SHA256
-type HmacSha256 = Hmac<Sha256>;
 
 #[derive(Clone)]
 struct WebConfig {
@@ -55,17 +51,68 @@ struct WorkflowRequest {
     content: String,
 }
 
-fn calculate_sha256_signature(buff: String, secret: String) -> Option<String> {
-    let mut mac = HmacSha256::new_varkey(secret.as_bytes()).unwrap();
-    mac.input(buff.as_bytes());
-    let result = mac.result().code();
-    let r2 = hex::encode(&result);
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct LoginRequest {
+    username: String,
+    password: String,
+}
 
-    Some(r2)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct LoginResponse {
+    username: String,
+    email: String,
+    access_token: String,
 }
 
 fn get_signature<'a>(req: &'a HttpRequest) -> Option<&'a str> {
     req.headers().get("X-Hub-Signature-256")?.to_str().ok()
+}
+
+#[post("/auth/login")]
+async fn auth_login(
+    pool: web::Data<DbPool>,
+    form: web::Json<LoginRequest>,
+    config: web::Data<WebConfig>,
+) -> impl Responder {
+    use crate::schema::users::dsl::*;
+
+    let conn = pool.get().expect("couldn't get db connection from pool");
+    match users
+        .filter(username.eq(form.username.to_owned()))
+        .select((password, email))
+        .first::<(String, String)>(&conn)
+    {
+        Ok(user) => {
+            match calculate_sha256_signature(form.password.to_owned(), config.app_secret.to_owned())
+            {
+                Some(calculated_password) => {
+                    if user.0 == calculated_password {
+                        let res = LoginResponse {
+                            username: form.username.to_owned(),
+                            email: user.1,
+                            access_token: generate_jwt_token(
+                                config.app_secret.to_owned(),
+                                form.username.to_owned(),
+                            )
+                            .unwrap(),
+                        };
+
+                        HttpResponse::Ok().json(res)
+                    } else {
+                        HttpResponse::Unauthorized().finish()
+                    }
+                }
+                None => HttpResponse::InternalServerError().finish(),
+            }
+        }
+        _ => {
+            let err_message = HttpErrorMessage {
+                code: 400,
+                message: format!("user with username {} not found!", form.username),
+            };
+            HttpResponse::BadRequest().json(err_message)
+        }
+    }
 }
 
 #[post("/workflows")]
@@ -226,6 +273,7 @@ async fn main() -> std::io::Result<()> {
             .service(create_user)
             .service(create_workflow)
             .service(get_workflows)
+            .service(auth_login)
     })
     .bind("127.0.0.1:8080")?
     .run()
