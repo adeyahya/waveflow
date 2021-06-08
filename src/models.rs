@@ -8,6 +8,7 @@ pub struct User {
     pub username: String,
     pub email: String,
     pub password: String,
+    pub is_admin: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
