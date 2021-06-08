@@ -20,6 +20,11 @@ type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 // Create alias for HMAC-SHA256
 type HmacSha256 = Hmac<Sha256>;
 
+#[derive(Clone)]
+struct WebConfig {
+    app_secret: String,
+}
+
 #[allow(dead_code)]
 #[derive(Deserialize)]
 struct Repository {
@@ -126,14 +131,21 @@ async fn get_workflows(pool: web::Data<DbPool>) -> impl Responder {
 }
 
 #[post("/users")]
-async fn create_user(pool: web::Data<DbPool>, form: web::Json<models::NewUser>) -> impl Responder {
+async fn create_user(
+    pool: web::Data<DbPool>,
+    form: web::Json<models::NewUser>,
+    config: web::Data<WebConfig>,
+) -> impl Responder {
     use crate::schema::users::dsl::*;
     let conn = pool.get().expect("couldn't get db connection from pool");
+
+    let encrypted_passwod =
+        calculate_sha256_signature(form.password.to_owned(), config.app_secret.to_owned()).unwrap();
 
     let new_user = models::User {
         username: form.username.to_owned(),
         email: form.email.to_owned(),
-        password: form.password.to_owned(),
+        password: encrypted_passwod,
     };
 
     let query = diesel::insert_into(users).values(&new_user).execute(&conn);
@@ -195,6 +207,10 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
     dotenv::dotenv().ok();
 
+    let web_config = WebConfig {
+        app_secret: std::env::var("DATABASE_URL").expect("DATABASE_URL"),
+    };
+
     // set up database connection pool
     let connspec = std::env::var("DATABASE_URL").expect("DATABASE_URL");
     let manager = ConnectionManager::<SqliteConnection>::new(connspec);
@@ -205,6 +221,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
+            .data(web_config.clone())
             .service(deploy)
             .service(create_user)
             .service(create_workflow)
