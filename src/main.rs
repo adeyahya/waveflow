@@ -2,7 +2,7 @@
 extern crate diesel;
 extern crate hex;
 
-use actix_web::{post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use env_logger;
@@ -50,13 +50,13 @@ struct WorkflowRequest {
     content: String,
 }
 
-fn verify_signature(buff: String, secret: String) -> Option<String> {
+fn calculate_sha256_signature(buff: String, secret: String) -> Option<String> {
     let mut mac = HmacSha256::new_varkey(secret.as_bytes()).unwrap();
     mac.input(buff.as_bytes());
     let result = mac.result().code();
     let r2 = hex::encode(&result);
 
-    Some(format!("sha256={}", r2))
+    Some(r2)
 }
 
 fn get_signature<'a>(req: &'a HttpRequest) -> Option<&'a str> {
@@ -90,6 +90,38 @@ async fn create_workflow(
         HttpResponse::BadRequest().json(err_message)
     } else {
         HttpResponse::Ok().json(workflow)
+    }
+}
+
+#[get("/workflows")]
+async fn get_workflows(pool: web::Data<DbPool>) -> impl Responder {
+    use crate::schema::workflows::dsl::*;
+
+    let conn = pool.get().expect("couldn't get db connection from pool");
+
+    match workflows.load::<(String, String, String, String)>(&conn) {
+        Ok(results) => {
+            let result_vec: Vec<models::Workflow> = results
+                .into_iter()
+                .map(|x| models::Workflow {
+                    id: x.0.to_owned(),
+                    slug: x.1.to_owned(),
+                    secret: x.2.to_owned(),
+                    content: x.3.to_owned(),
+                })
+                .rev()
+                .collect();
+
+            HttpResponse::Ok().json(result_vec)
+        }
+        _ => {
+            let err_message = HttpErrorMessage {
+                code: 400,
+                message: "internal error".to_owned(),
+            };
+
+            HttpResponse::InternalServerError().json(err_message)
+        }
     }
 }
 
@@ -139,11 +171,11 @@ async fn deploy(
         Some(_signature) => {
             let secret = String::from("secretkey");
             let raw = String::from_utf8(bytes.to_vec()).expect("error parsing raw body");
-            let verified_signature = verify_signature(raw, secret);
+            let verified_signature = calculate_sha256_signature(raw, secret);
 
             match verified_signature {
                 Some(data) => {
-                    if data == _signature {
+                    if format!("sha256={}", data) == _signature {
                         HttpResponse::Ok()
                             .body(format!("calculated: {}, received: {}", data, _signature))
                     } else {
@@ -176,6 +208,7 @@ async fn main() -> std::io::Result<()> {
             .service(deploy)
             .service(create_user)
             .service(create_workflow)
+            .service(get_workflows)
     })
     .bind("127.0.0.1:8080")?
     .run()
