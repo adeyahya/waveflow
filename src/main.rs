@@ -10,6 +10,7 @@ use hmac::{Hmac, Mac};
 use log;
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
+use uuid::Uuid;
 
 mod models;
 mod schema;
@@ -31,6 +32,24 @@ struct _FormData {
     repository: Repository,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct UserResponse {
+    username: String,
+    email: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct HttpErrorMessage {
+    code: u32,
+    message: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct WorkflowRequest {
+    slug: String,
+    content: String,
+}
+
 fn verify_signature(buff: String, secret: String) -> Option<String> {
     let mut mac = HmacSha256::new_varkey(secret.as_bytes()).unwrap();
     mac.input(buff.as_bytes());
@@ -44,12 +63,41 @@ fn get_signature<'a>(req: &'a HttpRequest) -> Option<&'a str> {
     req.headers().get("X-Hub-Signature-256")?.to_str().ok()
 }
 
+#[post("/workflows")]
+async fn create_workflow(
+    pool: web::Data<DbPool>,
+    form: web::Json<WorkflowRequest>,
+) -> impl Responder {
+    use crate::schema::workflows::dsl::*;
+
+    let conn = pool.get().expect("couldn't get db connection from pool");
+
+    let workflow = models::Workflow {
+        id: Uuid::new_v4().to_string(),
+        slug: form.slug.to_owned(),
+        secret: Uuid::new_v4().to_string(),
+        content: form.content.to_owned(),
+    };
+
+    if let Err(err) = diesel::insert_into(workflows)
+        .values(&workflow)
+        .execute(&conn)
+    {
+        let err_message = HttpErrorMessage {
+            code: 400,
+            message: format!("{}", err),
+        };
+        HttpResponse::BadRequest().json(err_message)
+    } else {
+        HttpResponse::Ok().json(workflow)
+    }
+}
+
 #[post("/users")]
 async fn create_user(pool: web::Data<DbPool>, form: web::Json<models::NewUser>) -> impl Responder {
     use crate::schema::users::dsl::*;
     let conn = pool.get().expect("couldn't get db connection from pool");
 
-    // use web::block to offload blocking Diesel code without blocking server thread
     let new_user = models::User {
         username: form.username.to_owned(),
         email: form.email.to_owned(),
@@ -57,18 +105,6 @@ async fn create_user(pool: web::Data<DbPool>, form: web::Json<models::NewUser>) 
     };
 
     let query = diesel::insert_into(users).values(&new_user).execute(&conn);
-
-    #[derive(Debug, Clone, Serialize, Deserialize)]
-    struct UserResponse {
-        username: String,
-        email: String,
-    }
-
-    #[derive(Debug, Clone, Serialize, Deserialize)]
-    struct HttpErrorMessage {
-        code: u32,
-        message: String,
-    }
 
     match query {
         Ok(_) => {
@@ -81,7 +117,7 @@ async fn create_user(pool: web::Data<DbPool>, form: web::Json<models::NewUser>) 
         Err(error) => {
             log::error!("unable to insert into database {}", error);
             let err_message = HttpErrorMessage {
-                code: 402,
+                code: 400,
                 message: format!("{}", error),
             };
 
@@ -139,6 +175,7 @@ async fn main() -> std::io::Result<()> {
             .data(pool.clone())
             .service(deploy)
             .service(create_user)
+            .service(create_workflow)
     })
     .bind("127.0.0.1:8080")?
     .run()

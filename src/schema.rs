@@ -7,3 +7,17 @@ table! {
         is_admin -> Bool,
     }
 }
+
+table! {
+    workflows (id) {
+        id -> Text,
+        slug -> Text,
+        secret -> Text,
+        content -> Text,
+    }
+}
+
+allow_tables_to_appear_in_same_query!(
+    users,
+    workflows,
+);
