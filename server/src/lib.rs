@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
-use actix_web::HttpRequest;
+use actix_web::{HttpMessage, HttpRequest};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use hmac::{Hmac, Mac, NewMac};
@@ -69,8 +69,9 @@ pub fn get_signature<'a>(req: &'a HttpRequest) -> Option<&'a str> {
 }
 
 pub fn check_auth<'a>(req: &'a HttpRequest) -> Option<String> {
-    match req.headers().get("Authorization")?.to_str() {
-        Ok(token) => {
+    match req.cookie("access_token") {
+        Some(token) => {
+            let token = token.value();
             let key = std::env::var("APP_SECRET").expect("APP_SECRET");
             let mac: Hmac<Sha256> = Hmac::new_from_slice(key.as_bytes()).unwrap();
             let claims: Result<BTreeMap<String, String>, jwt::Error> = token.verify_with_key(&mac);
@@ -80,7 +81,7 @@ pub fn check_auth<'a>(req: &'a HttpRequest) -> Option<String> {
                 _ => None,
             }
         }
-        _ => None,
+        None => None,
     }
 }
 
