@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Root from "~pages";
 import Login from "~pages/login";
 import NotFound from "~pages/not-found";
+import NewWorkflow from "~pages/workflows/new";
 
 const App = (
   <ChakraProvider>
@@ -16,6 +17,9 @@ const App = (
           </Route>
           <Route path="/login">
             <Login />
+          </Route>
+          <Route path="/workflow/new">
+            <NewWorkflow />
           </Route>
           <Route path="*">
             <NotFound />
