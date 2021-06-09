@@ -1,6 +1,7 @@
 extern crate diesel;
 extern crate hex;
 
+use actix_cors::Cors;
 use actix_web::{middleware::Logger, App, HttpServer};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
@@ -31,7 +32,9 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed to create pool.");
 
     HttpServer::new(move || {
+        let cors = Cors::default().allow_any_origin();
         App::new()
+            .wrap(cors)
             .wrap(Logger::default())
             .wrap(Logger::new("%a %{User-Agent}i"))
             .data(pool.clone())
