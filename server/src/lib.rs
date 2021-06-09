@@ -59,7 +59,6 @@ pub struct LoginRequest {
 pub struct LoginResponse {
     pub username: String,
     pub email: String,
-    pub access_token: String,
 }
 
 pub type HmacSha256 = Hmac<Sha256>;
