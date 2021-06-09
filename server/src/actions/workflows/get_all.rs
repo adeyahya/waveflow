@@ -1,12 +1,17 @@
 use crate::*;
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, web, HttpRequest, HttpResponse, Responder};
 use diesel::r2d2::{self, ConnectionManager};
 
 type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
 #[get("/workflows")]
-async fn default(pool: web::Data<DbPool>) -> impl Responder {
+async fn default(pool: web::Data<DbPool>, req: HttpRequest) -> impl Responder {
   use crate::schema::workflows::dsl::*;
+
+  let sub = check_auth(&req);
+  if let None = sub {
+    return HttpResponse::Unauthorized().finish();
+  }
 
   let conn = pool.get().expect("couldn't get db connection from pool");
 

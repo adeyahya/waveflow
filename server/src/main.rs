@@ -1,7 +1,7 @@
 extern crate diesel;
 extern crate hex;
 
-use actix_web::{App, HttpServer};
+use actix_web::{middleware::Logger, App, HttpServer};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use env_logger;
@@ -32,6 +32,8 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(Logger::default())
+            .wrap(Logger::new("%a %{User-Agent}i"))
             .data(pool.clone())
             .data(web_config.clone())
             // users services

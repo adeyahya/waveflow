@@ -5,7 +5,7 @@ use actix_web::HttpRequest;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use hmac::{Hmac, Mac, NewMac};
-use jwt::SignWithKey;
+use jwt::{SignWithKey, VerifyWithKey};
 use sha2::Sha256;
 use std::collections::BTreeMap;
 
@@ -67,6 +67,22 @@ pub type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
 pub fn get_signature<'a>(req: &'a HttpRequest) -> Option<&'a str> {
     req.headers().get("X-Hub-Signature-256")?.to_str().ok()
+}
+
+pub fn check_auth<'a>(req: &'a HttpRequest) -> Option<String> {
+    match req.headers().get("Authorization")?.to_str() {
+        Ok(token) => {
+            let key = std::env::var("APP_SECRET").expect("APP_SECRET");
+            let mac: Hmac<Sha256> = Hmac::new_from_slice(key.as_bytes()).unwrap();
+            let claims: Result<BTreeMap<String, String>, jwt::Error> = token.verify_with_key(&mac);
+
+            match claims {
+                Ok(value) => Some(value["sub"].to_owned()),
+                _ => None,
+            }
+        }
+        _ => None,
+    }
 }
 
 pub fn generate_jwt_token(key: String, sub: String) -> Result<String, jwt::Error> {
