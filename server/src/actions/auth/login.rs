@@ -1,8 +1,5 @@
 use crate::*;
 use actix_web::{http, post, web, HttpResponse, Responder};
-use diesel::r2d2::{self, ConnectionManager};
-
-type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
 #[post("/auth/login")]
 async fn default(

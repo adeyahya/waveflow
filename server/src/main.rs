@@ -38,6 +38,7 @@ async fn main() -> std::io::Result<()> {
             .data(web_config.clone())
             // users services
             .service(actions::users::create::default)
+            .service(actions::users::me::default)
             // workflow services
             .service(actions::workflows::create::default)
             .service(actions::workflows::get_all::default)
