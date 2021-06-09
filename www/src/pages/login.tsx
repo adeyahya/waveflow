@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Container,
   Heading,
@@ -11,12 +11,22 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { useLoginForm, Controller } from "~hooks/forms";
+import useUserStore from "~store/user";
+import { useHistory } from "react-router";
 
 const Login = () => {
+  const user = useUserStore();
+  const history = useHistory();
   const { control, handleSubmit } = useLoginForm();
-  const submitHandler = handleSubmit((data) => {
-    console.log(data);
+  const submitHandler = handleSubmit(async (data) => {
+    await user.auth(data);
   });
+
+  useEffect(() => {
+    if (!user.loading && user.username) {
+      history.replace("/");
+    }
+  }, [user]);
 
   return (
     <Container maxW="5xl">
@@ -24,13 +34,7 @@ const Login = () => {
         <Heading>Login Page</Heading>
         <Text>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</Text>
       </Stack>
-      <Stack
-        onSubmit={submitHandler}
-        as="form"
-        maxW="450px"
-        mx="auto"
-        spacing="1.5rem"
-      >
+      <Stack maxW="450px" mx="auto" spacing="1.5rem">
         <Controller
           name="username"
           control={control}
@@ -39,9 +43,9 @@ const Login = () => {
             <FormControl isInvalid={fieldState.invalid}>
               <FormLabel>Username</FormLabel>
               <Input
+                autoComplete="off"
                 onChange={(e) => field.onChange(e.target.value)}
                 onBlur={field.onBlur}
-                type="email"
               />
               <FormErrorMessage>
                 {fieldState.error?.message || fieldState.error?.type}
@@ -68,12 +72,7 @@ const Login = () => {
           )}
         />
         <Stack direction="row" justify="space-around">
-          <Button
-            type="submit"
-            onSubmit={submitHandler}
-            flex="1"
-            colorScheme="blue"
-          >
+          <Button flex="1" colorScheme="blue" onClick={submitHandler}>
             Login
           </Button>
           <Button display="block" px="2rem" variant="ghost">

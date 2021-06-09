@@ -32,7 +32,11 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed to create pool.");
 
     HttpServer::new(move || {
-        let cors = Cors::default().allow_any_origin();
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_method()
+            .supports_credentials()
+            .allow_any_header();
         App::new()
             .wrap(cors)
             .wrap(Logger::default())
