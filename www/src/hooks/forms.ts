@@ -7,3 +7,11 @@ type LoginInput = {
 };
 
 export const useLoginForm = () => useForm<LoginInput>();
+
+type WorkflowInput = {
+  name: string;
+  slug: string;
+  content: string;
+}
+
+export const useWorkflowForm = () => useForm<WorkflowInput>();

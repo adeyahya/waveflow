@@ -49,7 +49,7 @@ async fn main() -> std::io::Result<()> {
             // workflow services
             .service(actions::workflows::create::default)
             .service(actions::workflows::get_all::default)
-            .service(actions::workflows::hook::default)
+            .service(actions::workflows::trigger::default)
             // auth services
             // POST auth/login
             .service(actions::auth::login::default)

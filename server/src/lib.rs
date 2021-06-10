@@ -77,7 +77,7 @@ pub fn check_auth<'a>(req: &'a HttpRequest) -> Option<String> {
             let claims: Result<BTreeMap<String, String>, jwt::Error> = token.verify_with_key(&mac);
 
             match claims {
-                Ok(value) => Some(value["sub"].to_owned()),
+                Ok(value) => Some(value["sub"].to_owned().replace("sha256=", "")),
                 _ => None,
             }
         }
