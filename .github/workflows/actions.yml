@@ -31,5 +31,8 @@ jobs:
         run: yarn build:www
       - name: rust-toolchain
         uses: actions-rs/toolchain@v1.0.6
+        with:
+          default: true
+          overwrite: true
       - name: Build server
         run: cd server && cargo build --release
