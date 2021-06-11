@@ -9,6 +9,7 @@ async fn default(
     pool: web::Data<DbPool>,
     form: web::Json<WorkflowRequest>,
     req: HttpRequest,
+    config: web::Data<WebConfig>,
 ) -> impl Responder {
     use crate::schema::workflows::dsl::*;
 
@@ -18,12 +19,14 @@ async fn default(
     }
 
     let conn = pool.get().expect("couldn't get db connection from pool");
-
+    let sha_256_secret =
+        calculate_sha256_signature(Uuid::new_v4().to_string(), config.app_secret.to_owned())
+            .unwrap();
     let workflow = models::Workflow {
         id: Uuid::new_v4().to_string(),
         name: form.name.to_owned(),
         slug: form.slug.to_owned(),
-        secret: Uuid::new_v4().to_string(),
+        secret: sha_256_secret,
         content: form.content.to_owned(),
     };
 

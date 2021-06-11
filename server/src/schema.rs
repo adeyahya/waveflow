@@ -5,6 +5,8 @@ table! {
         email -> Text,
         password -> Text,
         is_admin -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -15,6 +17,8 @@ table! {
         slug -> Text,
         secret -> Text,
         content -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 

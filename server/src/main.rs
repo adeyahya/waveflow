@@ -31,6 +31,35 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Failed to create pool.");
 
+    // creating the first admin if not exist
+    use crate::schema::users::dsl::*;
+    let conn = pool.get().expect("couldn't get db connection from pool");
+    match users
+        .filter(username.eq("admin"))
+        .select(username)
+        .first::<String>(&conn)
+    {
+        Ok(_) => {}
+        _ => {
+            let encrypted_password =
+                calculate_sha256_signature(String::from("admin"), web_config.app_secret.to_owned())
+                    .unwrap();
+            let admin = models::User {
+                username: String::from("admin"),
+                email: String::from("admin@waveflow.io"),
+                password: encrypted_password,
+                is_admin: true,
+            };
+
+            match diesel::insert_into(users).values(&admin).execute(&conn) {
+                Ok(_) => {}
+                _ => {
+                    panic!("error creating the first admin user");
+                }
+            }
+        }
+    };
+
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()

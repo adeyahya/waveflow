@@ -15,7 +15,14 @@ async fn default(pool: web::Data<DbPool>, req: HttpRequest) -> impl Responder {
 
     let conn = pool.get().expect("couldn't get db connection from pool");
 
-    match workflows.load::<(String, String, String, String, String)>(&conn) {
+    match workflows.select((id, name, slug, secret, content)).load::<(
+        String,
+        String,
+        String,
+        String,
+        String,
+    )>(&conn)
+    {
         Ok(results) => {
             let result_vec: Vec<models::Workflow> = results
                 .into_iter()
