@@ -43,12 +43,12 @@ jobs:
           toolchain: stable
           target: ${{ matrix.rust-target }}
           override: true
-      - name: install cross
-        run: cargo install cross
+      # - name: install cross
+      #   run: cargo install cross
       - name: install sqlite3-dev
         run: sudo apt-get install libsqlite3-dev
       - name: build server
-        run: cd server && cross build --release --target ${{ matrix.rust-target }}
+        run: cd server && cargo build --release --target ${{ matrix.rust-target }}
       - uses: Swatinem/rust-cache@v1
 #       - name: Zip Release
 #         uses: TheDoctor0/zip-release@0.4.2
