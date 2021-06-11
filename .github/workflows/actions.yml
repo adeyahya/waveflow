@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.4
       - name: Install dependencies
-        run: sudo apt-get update -y && apt-get install -y build-essential gcc-arm-linux-gnueabihf
+        run: sudo apt-get update -y && sudo apt-get install -y build-essential gcc-arm-linux-gnueabihf
       - name: rust-toolchain
         uses: actions-rs/toolchain@v1.0.6
         with:
