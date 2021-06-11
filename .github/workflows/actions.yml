@@ -9,14 +9,15 @@ on:
 env:
   YARN_CACHE: 001
 
+defaults:
+  run:
+    working-directory: server
+
 jobs:
   release:
     timeout-minutes: 10
     if: github.event_name == 'push'
     runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: server
     strategy:
       matrix:
         rust-target: [ 'x86_64-unknown-linux-gnu', 'i686-unknown-linux-gnu', 'x86_64-apple-darwin', 'aarch64-unknown-linux-gnu' ]
