@@ -16,27 +16,30 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust-target: [ 'x86_64-unknown-linux-gnu', 'i686-unknown-linux-gnu', 'aarch64-unknown-linux-gnu' ]
+        rust-target:
+          [
+            "x86_64-unknown-linux-gnu",
+            "i686-unknown-linux-gnu",
+            "aarch64-unknown-linux-gnu",
+          ]
     name: Rust stable-${{ matrix.rust-target }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
-      - name: Move server dir to root
-        run: mv server/* .
       - name: Install podman
         run: sudo apt-get -y update && sudo apt-get -y install podman
-#       - name: Setup Node.js environment
-#         uses: actions/setup-node@v2.1.5
-#         with:
-#           version: 14
-#       - uses: actions/cache@v2
-#         with:
-#           path: '**/node_modules'
-#           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-#       - name: Install Yarn
-#         run: npm i -g yarn && yarn
-#       - name: Build www
-#         run: yarn build:www
+      #       - name: Setup Node.js environment
+      #         uses: actions/setup-node@v2.1.5
+      #         with:
+      #           version: 14
+      #       - uses: actions/cache@v2
+      #         with:
+      #           path: '**/node_modules'
+      #           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      #       - name: Install Yarn
+      #         run: npm i -g yarn && yarn
+      #       - name: Build www
+      #         run: yarn build:www
       - name: rust-toolchain
         # You may pin to the exact commit or the version.
         # uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
@@ -45,22 +48,23 @@ jobs:
           toolchain: stable
           target: ${{ matrix.rust-target }}
           override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --release --target ${{ matrix.rust-target }}
+      - name: install cross
+        run: cargo install cross
+      - name: install sqlite3-dev
+        run: sudo apt-get install libsqlite3-dev
+      - name: build server
+        run: cd server && cross build --release --target ${{ matrix.rust-target }}
       - uses: Swatinem/rust-cache@v1
 #       - name: Zip Release
 #         uses: TheDoctor0/zip-release@0.4.2
 #         with:
-          # Filename for archive
+# Filename for archive
 #           filename: ${{ matrix.rust-target }}.zip
-          # Base path for archive files
+# Base path for archive files
 #           path: # optional, default is .
 #           # Working directory before zipping
 #           directory: # optional, default is .
 #           # List of excluded files / directories
-#           exclusions: # optional, default is 
+#           exclusions: # optional, default is
 #           # Tool to use for archiving
 #           type: # optional, default is zip
