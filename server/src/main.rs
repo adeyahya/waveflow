@@ -2,13 +2,19 @@ extern crate diesel;
 extern crate hex;
 
 use actix_cors::Cors;
-use actix_web::{middleware::Logger, App, HttpServer};
+use actix_files::Files;
+use actix_files::NamedFile;
+use actix_web::{middleware::Logger, web, App, HttpServer, Result};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use env_logger;
 use waveflow::*;
 
 mod actions;
+
+async fn p404() -> Result<NamedFile> {
+    Ok(NamedFile::open("./frontend/index.html")?)
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -82,6 +88,12 @@ async fn main() -> std::io::Result<()> {
             // auth services
             // POST auth/login
             .service(actions::auth::login::default)
+            .service(Files::new("/assets", "./frontend/assets/").prefer_utf8(true))
+            .service(
+                Files::new("/", "./frontend/index.html")
+                    .default_handler(web::get().to(p404))
+                    .prefer_utf8(true),
+            )
     })
     .bind(format!("127.0.0.1:{}", port))?
     .run()

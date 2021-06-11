@@ -1,7 +1,7 @@
 use crate::*;
 use actix_web::*;
 
-#[get("/users/me")]
+#[get("/api/users/me")]
 async fn default(pool: web::Data<DbPool>, req: web::HttpRequest) -> impl Responder {
     use crate::schema::users::dsl::*;
     let conn = pool.get().expect("error getting pool");

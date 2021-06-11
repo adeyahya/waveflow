@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::*;
 
-#[post("/workflows")]
+#[post("/api/workflows")]
 async fn default(
     pool: web::Data<DbPool>,
     form: web::Json<WorkflowRequest>,

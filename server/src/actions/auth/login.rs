@@ -1,7 +1,7 @@
 use crate::*;
 use actix_web::{http, post, web, HttpResponse, Responder};
 
-#[post("/auth/login")]
+#[post("/api/auth/login")]
 async fn default(
     pool: web::Data<DbPool>,
     form: web::Json<LoginRequest>,

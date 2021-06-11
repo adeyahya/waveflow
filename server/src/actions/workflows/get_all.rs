@@ -4,7 +4,7 @@ use diesel::r2d2::{self, ConnectionManager};
 
 type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
-#[get("/workflows")]
+#[get("/api/workflows")]
 async fn default(pool: web::Data<DbPool>, req: HttpRequest) -> impl Responder {
     use crate::schema::workflows::dsl::*;
 

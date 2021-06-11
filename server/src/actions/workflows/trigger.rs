@@ -5,7 +5,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
-#[post("/workflows/trigger/{s}")]
+#[post("/api/workflows/trigger/{s}")]
 async fn default(
     bytes: web::Bytes,
     pool: web::Data<DbPool>,
