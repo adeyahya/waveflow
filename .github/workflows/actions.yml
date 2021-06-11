@@ -29,7 +29,7 @@ jobs:
         run: npm i -g yarn && yarn
       - name: Build www
         run: yarn build:www
-      - name: Setup Rust environment
-        uses: raftario/setup-rust-action@v1.0.0
+      - name: rust-toolchain
+        uses: actions-rs/toolchain@v1.0.6
       - name: Build server
         run: cd server && cargo build --release
