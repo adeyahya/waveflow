@@ -1,15 +1,15 @@
-import create from 'zustand'
-import axios from 'axios';
+import create from "zustand";
+import axios from "axios";
 
 type Workflow = {
   name: string;
   slug: string;
   secret: string;
   content: string;
-}
+};
 
 type Workflows = {
-  items: Workflow[]
+  items: Workflow[];
 };
 
 interface WorkflowHandler extends Workflows {
@@ -18,16 +18,16 @@ interface WorkflowHandler extends Workflows {
   get: () => Promise<any>;
 }
 
-export const useWorkflowStore = create<WorkflowHandler>(set => ({
+export const useWorkflowStore = create<WorkflowHandler>((set) => ({
   items: [],
   loading: false,
   insert: async () => null,
   get: async () => {
     set({ loading: true });
-    const { data } = await axios.get<Workflow[]>('/workflows');
-    set({ items: data })
-    set({ loading: false })
-  }
-}))
+    const { data } = await axios.get<Workflow[]>("/workflows");
+    set({ items: data });
+    set({ loading: false });
+  },
+}));
 
 export default useWorkflowStore;

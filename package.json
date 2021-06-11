@@ -16,7 +16,11 @@
   "scripts": {
     "dev": "concurrently --names 'www,server' -c 'green,yellow' yarn:dev:www yarn:dev:server",
     "dev:www": "yarn --cwd www dev",
-    "dev:server": "cargo-watch -x 'run' -C ./server"
+    "dev:server": "cargo-watch -x 'run' -C ./server",
+    "build": "yarn build:server && yarn build:www && yarn build:copy",
+    "build:www": "yarn --cwd www build",
+    "build:server": "cd server && cargo build --release",
+    "build:copy": "mkdir -p server/target/release/frontend && cp -r www/dist/* server/target/release/frontend"
   },
   "devDependencies": {
     "concurrently": "^6.2.0"

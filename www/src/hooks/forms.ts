@@ -12,6 +12,6 @@ type WorkflowInput = {
   name: string;
   slug: string;
   content: string;
-}
+};
 
 export const useWorkflowForm = () => useForm<WorkflowInput>();
