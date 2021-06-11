@@ -49,4 +49,4 @@ jobs:
 #           components: # optional
       - uses: Swatinem/rust-cache@v1
       - name: Build server
-        run: cd server && cargo build --release
+        run: cd server && cargo build --release --target ${{ matrix.rust-target }}
