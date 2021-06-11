@@ -6,9 +6,6 @@ on:
       - master
       - gh-actions
 
-env:
-  YARN_CACHE: 001
-
 jobs:
   release:
     timeout-minutes: 10
@@ -21,35 +18,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
-      - name: Install podman
-        run: sudo apt-get -y update && sudo apt-get -y install podman
-      #       - name: Setup Node.js environment
-      #         uses: actions/setup-node@v2.1.5
-      #         with:
-      #           version: 14
-      #       - uses: actions/cache@v2
-      #         with:
-      #           path: '**/node_modules'
-      #           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-      #       - name: Install Yarn
-      #         run: npm i -g yarn && yarn
-      #       - name: Build www
-      #         run: yarn build:www
+      - name: Install dependencies
+        run: sudo apt-get -y update && sudo apt-get -y install podman && sudo apt-get install gcc-aarch64-linux-gnu && sudo apt-get install build-essential
       - name: rust-toolchain
-        # You may pin to the exact commit or the version.
-        # uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
         uses: actions-rs/toolchain@v1.0.6
         with:
           toolchain: stable
           target: ${{ matrix.rust-target }}
           override: true
-      # - name: install cross
-      #   run: cargo install cross
       - name: install sqlite3-dev
         run: sudo apt-get install libsqlite3-dev
       - name: build server
         run: cd server && cargo build --release --target ${{ matrix.rust-target }}
       - uses: Swatinem/rust-cache@v1
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.5
+        with:
+          version: 14
+      - uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install Yarn
+        run: npm i -g yarn && yarn
+      - name: Build www
+        run: yarn build:www
 #       - name: Zip Release
 #         uses: TheDoctor0/zip-release@0.4.2
 #         with:
