@@ -45,6 +45,7 @@ pub struct HttpErrorMessage {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorkflowRequest {
+    pub name: String,
     pub slug: String,
     pub content: String,
 }

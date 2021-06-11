@@ -1,14 +1,37 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { List, ListItem, Text } from "@chakra-ui/react";
+import { useMount } from "react-use";
+import useWorkflowStore from "~store/workflows";
+import useUserStore from "~store/user";
+import { useHistory } from "react-router";
 
 const RootPage = () => {
+  const workflow = useWorkflowStore();
+  const user = useUserStore();
+  const history = useHistory();
+
+  useMount(async () => {
+    // await user.fetch();
+    await workflow.get();
+  });
+
+  useEffect(() => {
+    if (!user.loading && !user.email) {
+      history.replace("/login");
+    }
+  }, [user]);
+
   return (
-    <p>
-      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officia sit
-      quidem corrupti dicta aut qui quam quis distinctio odio, ab nobis atque
-      fugit veritatis illo cupiditate ea esse? Magni, deserunt.
-      <Link to="/login">Login</Link>
-    </p>
+    <List>
+      {workflow.items.map((wf) => (
+        <ListItem key={wf.slug}>
+          <Link to={`/workflows/${wf.slug}`}>
+            <Text>{wf.slug}</Text>
+          </Link>
+        </ListItem>
+      ))}
+    </List>
   );
 };
 

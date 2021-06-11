@@ -1,6 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE workflows (
   id VARCHAR(36) NOT NULL PRIMARY KEY,
+  name VARCHAR NOT NULL,
   slug VARCHAR NOT NULL UNIQUE,
   secret VARCHAR NOT NULL,
   content TEXT NOT NULL

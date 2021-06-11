@@ -21,6 +21,7 @@ pub struct NewUser {
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 pub struct Workflow {
     pub id: String,
+    pub name: String,
     pub slug: String,
     pub secret: String,
     pub content: String,

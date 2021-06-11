@@ -3,6 +3,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { useMount } from "react-use";
 
+import DefaultLayout from "~layouts/default";
 import Root from "~pages";
 import Login from "~pages/login";
 import NotFound from "~pages/not-found";
@@ -22,20 +23,22 @@ const App = () => {
     <ChakraProvider>
       <React.StrictMode>
         <Router>
-          <Switch>
-            <Route exact path="/">
-              <Root />
-            </Route>
-            <Route path="/login">
-              <Login />
-            </Route>
-            <Route path="/workflow/new">
-              <NewWorkflow />
-            </Route>
-            <Route path="*">
-              <NotFound />
-            </Route>
-          </Switch>
+          <DefaultLayout>
+            <Switch>
+              <Route exact path="/">
+                <Root />
+              </Route>
+              <Route path="/login">
+                <Login />
+              </Route>
+              <Route path="/workflow/new">
+                <NewWorkflow />
+              </Route>
+              <Route path="*">
+                <NotFound />
+              </Route>
+            </Switch>
+          </DefaultLayout>
         </Router>
       </React.StrictMode>
     </ChakraProvider>

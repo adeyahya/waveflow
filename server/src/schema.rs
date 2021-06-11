@@ -11,6 +11,7 @@ table! {
 table! {
     workflows (id) {
         id -> Text,
+        name -> Text,
         slug -> Text,
         secret -> Text,
         content -> Text,
