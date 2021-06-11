@@ -10,16 +10,17 @@ jobs:
   release:
     timeout-minutes: 10
     if: github.event_name == 'push'
-    runs-on: ARM64
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust-target: ["aarch64-unknown-linux-gnu"]
+        rust-target:
+          ["x86_64-unknown-linux-gnu", "armv7-unknown-linux-gnueabihf"]
     name: Rust stable-${{ matrix.rust-target }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
-      # - name: Install dependencies
-      #   run: sudo apt-get -y update && sudo apt-get -y install podman && sudo apt-get install -y gcc-aarch64-linux-gnu && sudo apt-get install -y gcc-aarch64-linux-musl && sudo apt-get install build-essential
+      - name: Install dependencies
+        run: sudo apt-get install gcc-4.7-multilib-arm-linux-gnueabihf
       - name: rust-toolchain
         uses: actions-rs/toolchain@v1.0.6
         with:
