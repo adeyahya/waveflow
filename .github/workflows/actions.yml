@@ -45,6 +45,7 @@ jobs:
         run: cd server
       - uses: actions-rs/cargo@v1
         with:
+          working-directory: server
           use-cross: true
           command: build
           args: --release --target ${{ matrix.rust-target }}
