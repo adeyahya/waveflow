@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - gh-actions
 
 env:
   YARN_CACHE: 001
