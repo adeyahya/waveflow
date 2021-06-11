@@ -16,8 +16,8 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        rust-host: [ 'x86_64-unknown-linux-gnu', 'i686-unknown-linux-gnu', 'x86_64-apple-darwin' ]
-    name: Rust stable-${{ matrix.rust-host }}
+        rust-target: [ 'x86_64-unknown-linux-gnu', 'i686-unknown-linux-gnu', 'x86_64-apple-darwin' ]
+    name: Rust stable-${{ matrix.rust-target }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
@@ -33,10 +33,20 @@ jobs:
 #         run: npm i -g yarn && yarn
 #       - name: Build www
 #         run: yarn build:www
-      - uses: raftario/setup-rust-action@v1
+      - name: rust-toolchain
+        # You may pin to the exact commit or the version.
+        # uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
+        uses: actions-rs/toolchain@v1.0.6
         with:
-          rust-channel: stable
-          rust-host: ${{ matrix.rust-host }}
+          # Rust toolchain name.
+          toolchain: stable
+          # Target triple to install for this toolchain
+          target: ${{ matrix.rust-target }}
+          # Set installed toolchain as default
+          override: true
+#           profile: # optional
+#           # Comma-separated list of components to be additionally installed for a new toolchain
+#           components: # optional
       - uses: Swatinem/rust-cache@v1
       - name: Build server
         run: cd server && cargo build --release
