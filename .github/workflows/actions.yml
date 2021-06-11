@@ -42,8 +42,8 @@ jobs:
           target: ${{ matrix.rust-target }}
           override: true
       - uses: Swatinem/rust-cache@v1
-      - name: setup-docker
-        uses: docker-practice/actions-setup-docker@v1
+      - name: Docker Setup Buildx
+        uses: docker/setup-buildx-action@v1.3.0
       - name: Build server
         run: cd server && cargo install cross && cross build --force-non-host --release --target ${{ matrix.rust-target }}
 #       - name: Zip Release
