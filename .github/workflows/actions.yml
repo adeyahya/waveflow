@@ -31,19 +31,19 @@ jobs:
         run: sudo apt-get install libsqlite3-dev
       - name: build server
         run: cd server && cargo build --release --target ${{ matrix.rust-target }}
-      - uses: Swatinem/rust-cache@v1
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2.1.5
-        with:
-          version: 14
-      - uses: actions/cache@v2
-        with:
-          path: "**/node_modules"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-      - name: Install Yarn
-        run: npm i -g yarn && yarn
-      - name: Build www
-        run: yarn build:www
+      # - uses: Swatinem/rust-cache@v1
+      # - name: Setup Node.js environment
+      #   uses: actions/setup-node@v2.1.5
+      #   with:
+      #     version: 14
+      # - uses: actions/cache@v2
+      #   with:
+      #     path: "**/node_modules"
+      #     key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      # - name: Install Yarn
+      #   run: npm i -g yarn && yarn
+      # - name: Build www
+      #   run: yarn build:www
 #       - name: Zip Release
 #         uses: TheDoctor0/zip-release@0.4.2
 #         with:
