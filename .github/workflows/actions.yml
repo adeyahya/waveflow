@@ -16,7 +16,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        rust-target: [ 'x86_64-unknown-linux-gnu', 'i686-unknown-linux-gnu', 'x86_64-apple-darwin' ]
+        rust-target: [ 'x86_64-unknown-linux-gnu', 'i686-unknown-linux-gnu', 'x86_64-apple-darwin', 'aarch64-unknown-linux-gnu' ]
     name: Rust stable-${{ matrix.rust-target }}
     steps:
       - name: Checkout
@@ -38,15 +38,22 @@ jobs:
         # uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
         uses: actions-rs/toolchain@v1.0.6
         with:
-          # Rust toolchain name.
           toolchain: stable
-          # Target triple to install for this toolchain
           target: ${{ matrix.rust-target }}
-          # Set installed toolchain as default
           override: true
-#           profile: # optional
-#           # Comma-separated list of components to be additionally installed for a new toolchain
-#           components: # optional
       - uses: Swatinem/rust-cache@v1
       - name: Build server
-        run: cd server && cargo build --release --target ${{ matrix.rust-target }}
+        run: cd server && cross build --release --target ${{ matrix.rust-target }}
+#       - name: Zip Release
+#         uses: TheDoctor0/zip-release@0.4.2
+#         with:
+          # Filename for archive
+#           filename: ${{ matrix.rust-target }}.zip
+          # Base path for archive files
+#           path: # optional, default is .
+#           # Working directory before zipping
+#           directory: # optional, default is .
+#           # List of excluded files / directories
+#           exclusions: # optional, default is 
+#           # Tool to use for archiving
+#           type: # optional, default is zip
