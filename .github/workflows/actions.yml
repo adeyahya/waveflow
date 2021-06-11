@@ -21,8 +21,9 @@ jobs:
         uses: actions/setup-node@v2.1.5
         with:
           version: 14
-        run: npm i -g yarn && yarn
       - uses: actions/cache@v2
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install Yarn
+        run: npm i -g yarn && yarn
