@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { List, ListItem, Text } from "@chakra-ui/react";
+import { List, ListItem, Text, Code } from "@chakra-ui/react";
 import { useMount } from "react-use";
 import useWorkflowStore from "~store/workflows";
 import useUserStore from "~store/user";
@@ -12,8 +12,7 @@ const RootPage = () => {
   const history = useHistory();
 
   useMount(async () => {
-    // await user.fetch();
-    await workflow.get();
+    workflow.get();
   });
 
   useEffect(() => {
@@ -27,7 +26,10 @@ const RootPage = () => {
       {workflow.items.map((wf) => (
         <ListItem key={wf.slug}>
           <Link to={`/workflows/${wf.slug}`}>
-            <Text>{wf.slug}</Text>
+            <Text>{wf.name}</Text>
+            <Code>
+              <Text>{wf.content}</Text>
+            </Code>
           </Link>
         </ListItem>
       ))}

@@ -37,6 +37,7 @@
     "react-icons": "^4.2.0",
     "react-router-dom": "^5.2.0",
     "react-use": "^17.2.4",
+    "vite-plugin-react-svg": "^0.2.0",
     "zustand": "^3.5.2"
   },
   "devDependencies": {

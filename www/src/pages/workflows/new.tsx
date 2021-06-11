@@ -13,6 +13,7 @@ import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 import { useWorkflowForm, Controller } from "../../hooks/forms";
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 
 // @ts-ignore
 self.MonacoEnvironment = {
@@ -27,6 +28,7 @@ self.MonacoEnvironment = {
 const NewWorkflow = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const { control, handleSubmit } = useWorkflowForm();
+  const history = useHistory();
   let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
   useMount(() => {
@@ -38,7 +40,7 @@ const NewWorkflow = () => {
         roundedSelection: false,
         scrollBeyondLastLine: false,
         readOnly: false,
-        theme: "vs-light",
+        theme: "vs-dark",
         padding: {
           top: 20,
           bottom: 20,
@@ -53,10 +55,11 @@ const NewWorkflow = () => {
       slug: data.slug,
       content: editor?.getValue(),
     });
+    history.push("/");
   });
 
   return (
-    <Box p="4rem" h="100vh" w="100vw" overflow="auto">
+    <Box h="100vh" mx="auto" overflow="auto">
       <Stack direction="column" spacing="1rem">
         <Controller
           control={control}
@@ -93,9 +96,9 @@ const NewWorkflow = () => {
           )}
         />
         <Box minH="50vh" w="100%" ref={editorRef}></Box>
-        <Stack>
+        <Stack direction="row">
           <Button onClick={submitHandler} colorScheme="blue">
-            Save Workflow
+            Save
           </Button>
         </Stack>
       </Stack>
