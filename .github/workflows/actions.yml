@@ -24,7 +24,7 @@ jobs:
       - name: Move server dir to root
         run: mv server/* .
       - name: Install podman
-        run: apt-get -y update && apt-get -y install podman
+        run: sudo apt-get -y update && sudo apt-get -y install podman
 #       - name: Setup Node.js environment
 #         uses: actions/setup-node@v2.1.5
 #         with:
