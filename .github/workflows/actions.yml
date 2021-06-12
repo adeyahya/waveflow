@@ -10,8 +10,8 @@ jobs:
   release:
     timeout-minutes: 10
     if: github.event_name == 'push'
-    runs-on: ubuntu-18.04
-    container: arm64v8/ubuntu:18.04
+    using: docker
+    image: arm64v8/ubuntu:18.04
     name: Release aarch64-unknown-linux-gnu
     steps:
       - name: Checkout
