@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::schema::users;
-use crate::schema::workflows;
+use crate::schema::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 pub struct User {
@@ -25,4 +24,13 @@ pub struct Workflow {
     pub slug: String,
     pub secret: String,
     pub content: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[table_name = "workflows_history"]
+pub struct WorkflowHistory {
+    pub id: String,
+    pub workflow_id: String,
+    pub content: Option<String>,
+    pub is_success: bool,
 }

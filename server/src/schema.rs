@@ -22,7 +22,17 @@ table! {
     }
 }
 
+table! {
+    workflows_history (id) {
+        id -> Text,
+        workflow_id -> Text,
+        content -> Nullable<Text>,
+        is_success -> Bool,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     users,
     workflows,
+    workflows_history,
 );

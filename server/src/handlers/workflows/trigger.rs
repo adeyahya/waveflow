@@ -36,8 +36,7 @@ async fn default(
             match verified_signature {
                 Some(data) => {
                     if data == _signature {
-                        // store the script path into
-                        // cache folder and execute it immediately
+                        // store the script path into cache and execute it immediately
                         let cache_dir =
                             cache_dir().or(Some(PathBuf::from("."))).unwrap().to_owned();
                         let cache_dir = cache_dir.to_str().unwrap();
@@ -47,10 +46,13 @@ async fn default(
                         if fd.is_err() {
                             return HttpResponse::InternalServerError().finish();
                         }
-                        let output = Command::new("sh").arg(script_path).spawn();
-                        if output.is_err() {
-                            return HttpResponse::InternalServerError().finish();
+                        let output = Command::new("sh").arg(script_path).output();
+                        if output.is_ok() {
+                            println!("{}", String::from_utf8(output.unwrap().stdout).unwrap());
                         }
+                        // if output.is_err() {
+                        //     return HttpResponse::InternalServerError().finish();
+                        // }
 
                         HttpResponse::Ok()
                             .body(format!("calculated: {}, received: {}", data, _signature))

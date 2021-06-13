@@ -10,7 +10,8 @@ use diesel::r2d2::{self, ConnectionManager};
 use env_logger;
 use waveflow::*;
 
-mod actions;
+mod handlers;
+mod repository;
 
 async fn p404() -> Result<NamedFile> {
     Ok(NamedFile::open("./frontend/index.html")?)
@@ -79,15 +80,16 @@ async fn main() -> std::io::Result<()> {
             .data(pool.clone())
             .data(web_config.clone())
             // users services
-            .service(actions::users::create::default)
-            .service(actions::users::me::default)
+            .service(handlers::users::create::default)
+            .service(handlers::users::me::default)
             // workflow services
-            .service(actions::workflows::create::default)
-            .service(actions::workflows::get_all::default)
-            .service(actions::workflows::trigger::default)
+            .service(handlers::workflows::create::default)
+            .service(handlers::workflows::get_all::default)
+            .service(handlers::workflows::trigger::default)
+            .service(handlers::workflows::history::default)
             // auth services
             // POST auth/login
-            .service(actions::auth::login::default)
+            .service(handlers::auth::login::default)
             .service(Files::new("/assets", "./frontend/assets/").prefer_utf8(true))
             .service(
                 Files::new("/", "./frontend/index.html")
@@ -95,7 +97,7 @@ async fn main() -> std::io::Result<()> {
                     .prefer_utf8(true),
             )
     })
-    .bind(format!("127.0.0.1:{}", port))?
+    .bind(format!("0.0.0.0:{}", port))?
     .run()
     .await
 }
