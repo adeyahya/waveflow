@@ -1,18 +1,31 @@
 version: 2.1
 
+orbs:
+  gh: circleci/github-cli@1.0.2
+
 jobs:
-  build-server:
+  release:
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
     steps:
       - checkout
-      - run: sudo apt-get update && sudo apt-get install -y build-essential curl libsqlite3-dev
+      - run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | sh -s -- y
+      - run: nvm install --lts
+      - run: sudo apt-get update && sudo apt-get install -y build-essential curl libsqlite3-dev zip
       - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
       - run: source ~/.bashrc
-      - run: cd server && cargo build --release
+      - run: node --version
+      - run: yarn
+      - run: yarn build
+      - run: yarn run pack
+      - gh/setup
+      - run:
+          command: |
+            gh release create alpha-0.0.1 --notes "circleci test"
+            gh release upload alpha-0.0.1 dist/waveflow/waveflow.zip
 
 workflows:
   build:
     jobs:
-      - build-server
+      - release
