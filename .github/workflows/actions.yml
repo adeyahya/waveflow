@@ -23,5 +23,9 @@ jobs:
         run: docker pull adeyahya/rust-arm64
       - name: start docker
         run: docker run -i -d -v ${PWD}/server/:/app --name builder adeyahya/rust-arm64
+      - name: Sleep for 30 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: "30s"
       - name: build server
         run: docker exec builder /root/.cargo/bin/cargo build --release
