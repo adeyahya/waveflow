@@ -6,20 +6,11 @@ const dist_path = path.join(__dirname, "../dist/waveflow");
 const server_path = path.join(__dirname, "../server");
 
 // prepare db
-try {
-  await $`rm ${server_path}/waveflow.db`;
-  await $`rm -rf ${dist_path}`;
-} catch {
-} finally {
-  await $`touch ${server_path}/waveflow.db`;
-}
 await $`cd ${server_path} && diesel migration run --database-url=./waveflow.db`;
-
 await $`mkdir -p ${dist_path}`;
-
 await $`cp ${server_path}/waveflow.db ${dist_path}/waveflow.db`;
 await $`cp ${server_binary} ${dist_path}/waveflow`;
-await $`cp ${server_path}/.env.example ${dist_path}/.env`;
+await $`cp ${__dirname}/waveflow.db ${dist_path}/waveflow.db`;
 await $`mkdir -p ${dist_path}/frontend`;
 await $`cp -r ${frontend_files}/* ${dist_path}/frontend`;
 await $`cd ${dist_path}/../ && zip -r waveflow.zip ./*`;
