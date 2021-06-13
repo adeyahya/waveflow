@@ -1,0 +1,16 @@
+version: 2.1
+
+jobs:
+  build-server:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+    steps:
+      - run: sudo apt-get update && apt-get build-essential curl libsqlite3-dev
+      - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -- -y
+      - run: cd server && cargo build --release
+
+workflows:
+  build:
+    jobs:
+      - build-server
