@@ -5,12 +5,10 @@ const frontend_files = path.join(__dirname, "../www/dist");
 const dist_path = path.join(__dirname, "../dist/waveflow");
 const server_path = path.join(__dirname, "../server");
 
-// remove old dist
-await $`rm -rf ${dist_path}`;
-
 // prepare db
 try {
   await $`rm ${server_path}/waveflow.db`;
+  await $`rm -rf ${dist_path}`;
 } catch {
 } finally {
   await $`touch ${server_path}/waveflow.db`;
