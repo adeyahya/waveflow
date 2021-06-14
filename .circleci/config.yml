@@ -12,10 +12,9 @@ jobs:
       - checkout
       - run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | sh -s -- y
       - run: nvm install --lts
-      - run: sudo apt-get update && sudo apt-get install -y build-essential curl libsqlite3-dev zip
+      - run: sudo apt-get update && sudo apt-get install -y build-essential curl libsqlite3-dev
       - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
       - run: source ~/.bashrc
-      - run: cargo install diesel_cli --no-default-features --features "sqlite"
       - run: node --version
       - run: npm i -g zx
       - run: yarn
@@ -26,6 +25,8 @@ jobs:
           command: |
             gh release create alpha-0.0.1 --notes "circleci test"
             gh release upload alpha-0.0.1 dist/waveflow/waveflow.zip
+      - store_artifacts:
+          path: dist 
 
 workflows:
   build:
