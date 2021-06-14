@@ -14,4 +14,3 @@ await $`cp ${server_binary} ${dist_path}/waveflow`;
 await $`cp ${server_path}/../waveflow.db ${dist_path}/waveflow.db`;
 await $`mkdir -p ${dist_path}/frontend`;
 await $`cp -r ${frontend_files}/* ${dist_path}/frontend`;
-await $`cd ${dist_path}/../ && zip -r waveflow.zip ./*`;
