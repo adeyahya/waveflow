@@ -13,7 +13,7 @@ async fn default(
 ) -> impl Responder {
     use crate::schema::workflows::dsl::*;
 
-    let sub = check_auth(&req);
+    let sub = check_auth(&req, config.app_secret.to_owned());
     if let None = sub {
         return HttpResponse::Unauthorized().finish();
     }

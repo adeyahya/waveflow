@@ -10,7 +10,6 @@ async fn default(
     bytes: web::Bytes,
     pool: web::Data<DbPool>,
     web::Path(s): web::Path<String>,
-    config: web::Data<WebConfig>,
     req: HttpRequest,
 ) -> impl Responder {
     use crate::schema::workflows::dsl::*;
@@ -20,8 +19,8 @@ async fn default(
     // getting the workflow content from database
     let workflow = workflows
         .filter(slug.eq(s.to_owned()))
-        .select(content)
-        .first::<String>(&conn);
+        .select((content, secret, id))
+        .first::<(String, String, String)>(&conn);
     if workflow.is_err() {
         return HttpResponse::InternalServerError().finish();
     }
@@ -31,7 +30,7 @@ async fn default(
     match signature {
         Some(_signature) => {
             let raw = String::from_utf8(bytes.to_vec()).expect("error parsing raw body");
-            let verified_signature = calculate_sha256_signature(raw, config.app_secret.to_owned());
+            let verified_signature = calculate_sha256_signature(raw, workflow.1);
 
             match verified_signature {
                 Some(data) => {
@@ -42,27 +41,42 @@ async fn default(
                         let cache_dir = cache_dir.to_str().unwrap();
                         let script_path = format!("{}/{}.sh", cache_dir, s.to_owned());
                         let fd =
-                            fs::write(script_path.to_owned(), workflow.to_owned().into_bytes());
+                            fs::write(script_path.to_owned(), workflow.0.to_owned().into_bytes());
                         if fd.is_err() {
                             return HttpResponse::InternalServerError().finish();
                         }
-                        let output = Command::new("sh").arg(script_path).output();
-                        if output.is_ok() {
-                            println!("{}", String::from_utf8(output.unwrap().stdout).unwrap());
-                        }
-                        // if output.is_err() {
-                        //     return HttpResponse::InternalServerError().finish();
-                        // }
+                        match Command::new("sh").arg(script_path).output() {
+                            Ok(output) => {
+                                let log_string = String::from_utf8(output.stdout).unwrap();
+                                repository::workflow_history::insert(
+                                    &conn,
+                                    workflow.2,
+                                    Some(log_string),
+                                    true,
+                                )
+                                .await
+                                .unwrap();
+                            }
+                            Err(err) => {
+                                repository::workflow_history::insert(
+                                    &conn,
+                                    workflow.2,
+                                    Some(format!("{}", err)),
+                                    false,
+                                )
+                                .await
+                                .unwrap();
+                            }
+                        };
 
-                        HttpResponse::Ok()
-                            .body(format!("calculated: {}, received: {}", data, _signature))
+                        HttpResponse::Ok().finish()
                     } else {
-                        HttpResponse::BadRequest().finish()
+                        HttpResponse::Unauthorized().finish()
                     }
                 }
-                None => HttpResponse::BadRequest().finish(),
+                None => HttpResponse::Unauthorized().finish(),
             }
         }
-        None => HttpResponse::BadRequest().finish(),
+        None => HttpResponse::Unauthorized().finish(),
     }
 }

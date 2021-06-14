@@ -2,12 +2,20 @@ import { Box, BoxProps } from "@chakra-ui/react";
 import React from "react";
 
 // @ts-ignore
-import Logo from "../resources/waveflow.svg?component";
+import Logo from "../resources/logo-with-text.svg?component";
 
 const Sidebar: React.FC<BoxProps> = (props) => {
   return (
-    <Box pt="1rem" bg="gray.200" px="1rem" minW="250px" {...props}>
-      <Box w="180px">
+    <Box
+      pt="1rem"
+      bg="white"
+      px="1rem"
+      minW="250px"
+      borderColor="gray.300"
+      borderRightWidth="1px"
+      {...props}
+    >
+      <Box w="130px">
         <Logo />
       </Box>
     </Box>

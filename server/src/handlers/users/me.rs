@@ -2,11 +2,15 @@ use crate::*;
 use actix_web::*;
 
 #[get("/api/users/me")]
-async fn default(pool: web::Data<DbPool>, req: web::HttpRequest) -> impl Responder {
+async fn default(
+    pool: web::Data<DbPool>,
+    req: web::HttpRequest,
+    config: web::Data<WebConfig>,
+) -> impl Responder {
     use crate::schema::users::dsl::*;
     let conn = pool.get().expect("error getting pool");
 
-    match check_auth(&req) {
+    match check_auth(&req, config.app_secret.to_owned()) {
         Some(sub) => {
             match users
                 .filter(username.eq(sub.to_owned()))

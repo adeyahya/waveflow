@@ -4,7 +4,7 @@ import Sidebar from "~components/Sidebar";
 
 const DefaultLayout: React.FC = (props) => {
   return (
-    <Stack h="100vh" direction="row" justifyContent="stretch">
+    <Stack bg="#f6f8fa" h="100vh" direction="row" justifyContent="stretch">
       <Sidebar />
       <Box
         position="relative"

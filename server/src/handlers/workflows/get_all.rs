@@ -5,10 +5,14 @@ use diesel::r2d2::{self, ConnectionManager};
 type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
 #[get("/api/workflows")]
-async fn default(pool: web::Data<DbPool>, req: HttpRequest) -> impl Responder {
+async fn default(
+    pool: web::Data<DbPool>,
+    req: HttpRequest,
+    config: web::Data<WebConfig>,
+) -> impl Responder {
     use crate::schema::workflows::dsl::*;
 
-    let sub = check_auth(&req);
+    let sub = check_auth(&req, config.app_secret.to_owned());
     if let None = sub {
         return HttpResponse::Unauthorized().finish();
     }

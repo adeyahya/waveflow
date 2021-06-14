@@ -74,12 +74,11 @@ pub fn get_signature<'a>(req: &'a HttpRequest) -> Option<&'a str> {
     req.headers().get("X-Hub-Signature-256")?.to_str().ok()
 }
 
-pub fn check_auth<'a>(req: &'a HttpRequest) -> Option<String> {
+pub fn check_auth<'a>(req: &'a HttpRequest, app_secret: String) -> Option<String> {
     match req.cookie("access_token") {
         Some(token) => {
             let token = token.value();
-            let key = std::env::var("APP_SECRET").expect("APP_SECRET");
-            let mac: Hmac<Sha256> = Hmac::new_from_slice(key.as_bytes()).unwrap();
+            let mac: Hmac<Sha256> = Hmac::new_from_slice(app_secret.as_bytes()).unwrap();
             let claims: Result<BTreeMap<String, String>, jwt::Error> = token.verify_with_key(&mac);
 
             match claims {
