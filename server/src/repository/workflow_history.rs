@@ -29,6 +29,7 @@ pub async fn get_by_workflow_id<'a, 'b>(
     results
 }
 
+#[allow(dead_code)]
 pub async fn insert<'a>(
     conn: &'a PooledConnection<ConnectionManager<SqliteConnection>>,
     relation_id: String,
