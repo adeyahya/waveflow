@@ -11,7 +11,7 @@ waveflow built with Rust on the backend side and React on the frontend side, it'
 
 - Node.js > 12
 - libsqlite3-dev
-- rustup with rustc 1.52
+- Rust 1.52
 
 ### Installation
 
