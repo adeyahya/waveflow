@@ -34,3 +34,11 @@ pub struct WorkflowHistory {
     pub content: Option<String>,
     pub is_success: bool,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[table_name = "configs"]
+pub struct Config {
+    pub id: Option<i32>,
+    pub name: String,
+    pub value: String,
+}

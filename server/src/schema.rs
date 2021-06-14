@@ -1,4 +1,14 @@
 table! {
+    configs (id) {
+        id -> Nullable<Integer>,
+        name -> Text,
+        value -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
     users (id) {
         id -> Nullable<Integer>,
         username -> Text,
@@ -32,6 +42,7 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    configs,
     users,
     workflows,
     workflows_history,

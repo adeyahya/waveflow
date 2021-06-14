@@ -8,6 +8,7 @@ use actix_web::{middleware::Logger, web, App, HttpServer, Result};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use env_logger;
+use uuid::Uuid;
 use waveflow::*;
 
 mod handlers;
@@ -23,12 +24,8 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
     dotenv::dotenv().ok();
 
-    let web_config = WebConfig {
-        app_secret: std::env::var("APP_SECRET").expect("APP_SECRET"),
-    };
-
     // set up database connection pool
-    let connspec = std::env::var("DATABASE_URL").expect("DATABASE_URL");
+    let connspec = std::env::var("DATABASE_URL").unwrap_or("./waveflow.db".to_string());
     let port = std::env::var("PORT").unwrap_or("3000".to_string());
 
     println!("running on port {}", port);
@@ -38,9 +35,35 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Failed to create pool.");
 
-    // creating the first admin if not exist
+    use crate::schema::configs::dsl::*;
     use crate::schema::users::dsl::*;
     let conn = pool.get().expect("couldn't get db connection from pool");
+
+    // get or create app_secret if not exist
+    let app_secret = match configs
+        .filter(name.eq("app_secret"))
+        .select(value)
+        .first::<String>(&conn)
+    {
+        Ok(app_secret) => app_secret,
+        Err(_) => {
+            let secret_str = Uuid::new_v4().to_string();
+            let secret = models::Config {
+                id: None,
+                name: String::from("app_secret"),
+                value: secret_str.to_owned(),
+            };
+
+            let query = diesel::insert_into(configs).values(&secret).execute(&conn);
+            if query.is_ok() {
+                secret_str
+            } else {
+                panic!("error creating app_secret");
+            }
+        }
+    };
+
+    // creating the first admin if not exist
     match users
         .filter(username.eq("admin"))
         .select(username)
@@ -49,8 +72,7 @@ async fn main() -> std::io::Result<()> {
         Ok(_) => {}
         _ => {
             let encrypted_password =
-                calculate_sha256_signature(String::from("admin"), web_config.app_secret.to_owned())
-                    .unwrap();
+                calculate_sha256_signature(String::from("admin"), app_secret.to_owned()).unwrap();
             let admin = models::User {
                 username: String::from("admin"),
                 email: String::from("admin@waveflow.io"),
@@ -66,6 +88,8 @@ async fn main() -> std::io::Result<()> {
             }
         }
     };
+
+    let web_config = WebConfig { app_secret };
 
     HttpServer::new(move || {
         let cors = Cors::default()

@@ -15,8 +15,7 @@ try {
 } finally {
   await $`touch ${server_path}/waveflow.db`;
 }
-await $`cp ${server_path}/.env.example ${server_path}/.env`;
-await $`cd ${server_path} && diesel migration run`;
+await $`cd ${server_path} && diesel migration run --database-url=./waveflow.db`;
 
 await $`mkdir -p ${dist_path}`;
 
