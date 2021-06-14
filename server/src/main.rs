@@ -97,8 +97,8 @@ async fn main() -> std::io::Result<()> {
             .data(pool.clone())
             .data(web_config.clone())
             // users services
-            .service(handlers::users::create::default)
-            .service(handlers::users::me::default)
+            .service(handlers::users::create)
+            .service(handlers::users::me)
             // workflow services
             .service(handlers::workflows::create::default)
             .service(handlers::workflows::get_all::default)
