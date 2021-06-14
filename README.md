@@ -1,6 +1,5 @@
-# waveflow
+<img src="www/src/resources/logo-with-text.svg" width="400" />
 
-![waveflow](www/src/resources/logo-with-text.svg)
 waveflow is web app that runs workflow trigerred by webhook using hmac sha256 signature validation, initial support is github webhook,
 `workflow` itself is only shell script ( for now ) maybe in the future I will support another kind of script like js or python.
 
