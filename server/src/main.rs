@@ -36,7 +36,6 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed to create pool.");
 
     use crate::schema::configs::dsl::*;
-    use crate::schema::users::dsl::*;
     let conn = pool.get().expect("couldn't get db connection from pool");
 
     // get or create app_secret if not exist
@@ -64,27 +63,21 @@ async fn main() -> std::io::Result<()> {
     };
 
     // creating the first admin if not exist
-    match users
-        .filter(username.eq("admin"))
-        .select(username)
-        .first::<String>(&conn)
-    {
-        Ok(_) => {}
-        _ => {
-            let encrypted_password =
-                calculate_sha256_signature(String::from("admin"), app_secret.to_owned()).unwrap();
-            let admin = models::User {
-                username: String::from("admin"),
-                email: String::from("admin@waveflow.io"),
-                password: encrypted_password,
-                is_admin: true,
-            };
+    if let None = repository::users::get_by_username(&conn, "admin".to_owned()).await {
+        let encrypted_password =
+            calculate_sha256_signature(String::from("admin"), app_secret.to_owned()).unwrap();
+        let admin = models::User {
+            id: None,
+            username: String::from("admin"),
+            email: String::from("admin@waveflow.io"),
+            password: encrypted_password,
+            is_admin: true,
+        };
 
-            match diesel::insert_into(users).values(&admin).execute(&conn) {
-                Ok(_) => {}
-                _ => {
-                    panic!("error creating the first admin user");
-                }
+        match repository::users::insert(&conn, admin).await {
+            Ok(_) => {}
+            _ => {
+                panic!("error creating the first admin user");
             }
         }
     };

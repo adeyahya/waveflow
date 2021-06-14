@@ -4,6 +4,7 @@ use crate::schema::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 pub struct User {
+    pub id: Option<i32>,
     pub username: String,
     pub email: String,
     pub password: String,

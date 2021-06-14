@@ -7,26 +7,19 @@ async fn default(
     req: web::HttpRequest,
     config: web::Data<WebConfig>,
 ) -> impl Responder {
-    use crate::schema::users::dsl::*;
     let conn = pool.get().expect("error getting pool");
 
     match check_auth(&req, config.app_secret.to_owned()) {
-        Some(sub) => {
-            match users
-                .filter(username.eq(sub.to_owned()))
-                .select((username, email))
-                .first::<(String, String)>(&conn)
-            {
-                Ok(user) => {
-                    let res = UserResponse {
-                        username: user.0.to_owned(),
-                        email: user.1.to_owned(),
-                    };
-                    HttpResponse::Ok().json(res)
-                }
-                _ => HttpResponse::NotFound().finish(),
+        Some(sub) => match repository::users::get_by_username(&conn, sub).await {
+            Some(user) => {
+                let res = UserResponse {
+                    username: user.username,
+                    email: user.email,
+                };
+                HttpResponse::Ok().json(res)
             }
-        }
+            _ => HttpResponse::NotFound().finish(),
+        },
         None => HttpResponse::Unauthorized().finish(),
     }
 }

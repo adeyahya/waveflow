@@ -7,22 +7,20 @@ async fn default(
     form: web::Json<models::NewUser>,
     config: web::Data<WebConfig>,
 ) -> impl Responder {
-    use crate::schema::users::dsl::*;
     let conn = pool.get().expect("couldn't get db connection from pool");
 
     let encrypted_passwod =
         calculate_sha256_signature(form.password.to_owned(), config.app_secret.to_owned()).unwrap();
 
     let new_user = models::User {
+        id: None,
         username: form.username.to_owned(),
         email: form.email.to_owned(),
         password: encrypted_passwod,
         is_admin: false,
     };
 
-    let query = diesel::insert_into(users).values(&new_user).execute(&conn);
-
-    match query {
+    match repository::users::insert(&conn, new_user.to_owned()).await {
         Ok(_) => {
             let response = UserResponse {
                 username: new_user.username,
@@ -30,11 +28,10 @@ async fn default(
             };
             HttpResponse::Ok().json(response)
         }
-        Err(error) => {
-            log::error!("unable to insert into database {}", error);
+        Err(_) => {
             let err_message = HttpErrorMessage {
                 code: 400,
-                message: format!("{}", error),
+                message: "".to_string(),
             };
 
             HttpResponse::BadRequest().json(err_message)

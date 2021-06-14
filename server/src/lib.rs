@@ -62,11 +62,6 @@ pub struct LoginResponse {
     pub email: String,
 }
 
-#[derive(Serialize)]
-pub struct History {
-    pub log: String,
-}
-
 pub type HmacSha256 = Hmac<Sha256>;
 pub type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
