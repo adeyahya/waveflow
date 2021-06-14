@@ -20,6 +20,7 @@
     "build": "yarn build:server && yarn build:www",
     "build:www": "yarn --cwd www build",
     "build:server": "cd server && cargo build --release",
+    "migrate:db": "cd server && diesel migration run --database-url=./../waveflow.db",
     "pack": "./scripts/pack.mjs"
   },
   "devDependencies": {

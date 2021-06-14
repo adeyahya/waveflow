@@ -9,7 +9,6 @@ const dist_path = path.join(__dirname, "../dist/waveflow");
 const server_path = path.join(__dirname, "../server");
 
 // prepare db
-await $`cd ${server_path} && diesel migration run --database-url=./waveflow.db`;
 await $`mkdir -p ${dist_path}`;
 await $`cp ${server_binary} ${dist_path}/waveflow`;
 await $`cp ${server_path}/../waveflow.db ${dist_path}/waveflow.db`;
