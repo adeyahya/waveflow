@@ -12,7 +12,6 @@ const server_path = path.join(__dirname, "../server");
 await $`cd ${server_path} && diesel migration run --database-url=./waveflow.db`;
 await $`mkdir -p ${dist_path}`;
 await $`cp ${server_binary} ${dist_path}/waveflow`;
-await $`cp ${server_path}/.env.example ${dist_path}/.env`;
 await $`cp ${server_path}/../waveflow.db ${dist_path}/waveflow.db`;
 await $`mkdir -p ${dist_path}/frontend`;
 await $`cp -r ${frontend_files}/* ${dist_path}/frontend`;
