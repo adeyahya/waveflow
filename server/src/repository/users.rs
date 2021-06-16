@@ -25,6 +25,17 @@ pub async fn get_by_username<'a>(conn: &'a ConnectionPool, username_input: Strin
     }
 }
 
+pub async fn update_password<'a>(
+    conn: &'a ConnectionPool,
+    username_input: String,
+    new_password: String,
+) -> Result<usize, diesel::result::Error> {
+    let target = users.filter(username.eq(username_input));
+    diesel::update(target)
+        .set(password.eq(new_password))
+        .execute(conn)
+}
+
 pub async fn insert<'a>(conn: &'a ConnectionPool, user: User) -> Result<User, ()> {
     match diesel::insert_into(users).values(&user).execute(conn) {
         Ok(_) => Ok(user),

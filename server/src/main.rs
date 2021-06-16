@@ -100,6 +100,7 @@ async fn main() -> std::io::Result<()> {
             // users services
             .service(handlers::users::create)
             .service(handlers::users::me)
+            .service(handlers::users::update_password)
             // workflow services
             .service(handlers::workflows::get_single)
             .service(handlers::workflows::get_all)
