@@ -101,10 +101,10 @@ async fn main() -> std::io::Result<()> {
             .service(handlers::users::create)
             .service(handlers::users::me)
             // workflow services
-            .service(handlers::workflows::create::default)
-            .service(handlers::workflows::get_all::default)
-            .service(handlers::workflows::trigger::default)
-            .service(handlers::workflows::history::default)
+            .service(handlers::workflows::get_single)
+            .service(handlers::workflows::get_all)
+            .service(handlers::workflows::trigger)
+            .service(handlers::workflows::get_history)
             // auth services
             // POST auth/login
             .service(handlers::auth::login::default)

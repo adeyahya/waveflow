@@ -24,7 +24,7 @@ export const useWorkflowStore = create<WorkflowHandler>((set) => ({
   insert: async () => null,
   get: async () => {
     set({ loading: true });
-    const { data } = await axios.get<Workflow[]>("/workflows");
+    const { data } = await axios.get<Workflow[]>("/workflow");
     set({ items: data });
     set({ loading: false });
   },
