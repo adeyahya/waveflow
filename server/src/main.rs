@@ -7,6 +7,7 @@ use actix_files::NamedFile;
 use actix_web::{middleware::Logger, web, App, HttpServer, Result};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
+use diesel_migrations;
 use env_logger;
 use uuid::Uuid;
 use waveflow::*;
@@ -26,17 +27,17 @@ async fn main() -> std::io::Result<()> {
 
     // set up database connection pool
     let connspec = std::env::var("DATABASE_URL").unwrap_or("./waveflow.db".to_string());
-    let port = std::env::var("PORT").unwrap_or("3000".to_string());
-
-    println!("running on port {}", port);
-
+    let port = std::env::var("PORT").unwrap_or("3001".to_string());
     let manager = ConnectionManager::<SqliteConnection>::new(connspec);
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create pool.");
 
-    use crate::schema::configs::dsl::*;
     let conn = pool.get().expect("couldn't get db connection from pool");
+
+    diesel_migrations::run_pending_migrations(&conn).expect("database migration error");
+
+    use crate::schema::configs::dsl::*;
 
     // get or create app_secret if not exist
     let app_secret = match configs
@@ -83,7 +84,7 @@ async fn main() -> std::io::Result<()> {
     };
 
     let web_config = WebConfig { app_secret };
-
+    println!("running on port {}", port);
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()
