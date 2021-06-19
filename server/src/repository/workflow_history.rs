@@ -2,7 +2,6 @@ use crate::models::*;
 use crate::schema::workflows_history::dsl::*;
 use crate::*;
 use ::r2d2::PooledConnection;
-use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use uuid::Uuid;
 
