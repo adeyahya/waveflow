@@ -16,8 +16,7 @@ async fn default(
         .first::<(String, String)>(&conn)
     {
         Ok(user) => {
-            match calculate_sha256_signature(form.password.to_owned(), config.app_secret.to_owned())
-            {
+            match calculate_sha256_signature(form.password.to_owned(), &config.app_secret) {
                 Some(calculated_password) => {
                     if user.0 == calculated_password {
                         let token = generate_jwt_token(

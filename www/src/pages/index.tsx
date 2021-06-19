@@ -12,14 +12,19 @@ import {
 import { useMount } from "react-use";
 import useWorkflowStore from "~store/workflows";
 import useUserStore from "~store/user";
+import useWorkflowHistoryStore from "~store/workflowHistory";
 import { useHistory } from "react-router";
 
 const RootPage = () => {
   const workflow = useWorkflowStore();
+  const workflowHistory = useWorkflowHistoryStore();
   const user = useUserStore();
   const history = useHistory();
 
+  console.log(workflowHistory.items);
+
   useMount(async () => {
+    workflowHistory.get("1");
     workflow.get();
   });
 
@@ -39,7 +44,7 @@ const RootPage = () => {
         borderWidth="1px"
         borderRadius="md"
       >
-        <List>
+        <List spacing="1rem">
           {workflow.items.length === 0 && (
             <Box>
               <Text mb=".5rem">No Workflow yet</Text>

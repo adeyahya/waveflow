@@ -93,7 +93,7 @@ pub fn generate_jwt_token(key: String, sub: String) -> Result<String, jwt::Error
     Ok(token_str.to_owned())
 }
 
-pub fn calculate_sha256_signature(buff: String, secret: String) -> Option<String> {
+pub fn calculate_sha256_signature<'a>(buff: String, secret: &'a String) -> Option<String> {
     let mut mac = HmacSha256::new_from_slice(secret.as_bytes()).unwrap();
     mac.update(buff.as_bytes());
     let result = mac.finalize().into_bytes();

@@ -47,7 +47,7 @@ pub async fn update_password(
         .await
         .unwrap();
 
-    match calculate_sha256_signature(form.password.to_owned(), config.app_secret.to_owned()) {
+    match calculate_sha256_signature(form.password.to_owned(), &config.app_secret) {
         Some(calculated_password) => {
             if calculated_password != user.password {
                 return HttpResponse::BadRequest().finish();
@@ -80,7 +80,7 @@ pub async fn create(
 
     let conn = pool.get().expect("couldn't get db connection from pool");
     let encrypted_passwod =
-        calculate_sha256_signature(form.password.to_owned(), config.app_secret.to_owned()).unwrap();
+        calculate_sha256_signature(form.password.to_owned(), &config.app_secret).unwrap();
 
     let new_user = models::User {
         id: None,

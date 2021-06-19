@@ -66,7 +66,7 @@ async fn main() -> std::io::Result<()> {
     // creating the first admin if not exist
     if let None = repository::users::get_by_username(&conn, "admin".to_owned()).await {
         let encrypted_password =
-            calculate_sha256_signature(String::from("admin"), app_secret.to_owned()).unwrap();
+            calculate_sha256_signature(String::from("admin"), &app_secret).unwrap();
         let admin = models::User {
             id: None,
             username: String::from("admin"),
@@ -102,7 +102,8 @@ async fn main() -> std::io::Result<()> {
             .service(handlers::users::me)
             .service(handlers::users::update_password)
             // workflow services
-            .service(handlers::workflows::get_single)
+            .service(handlers::workflows::get_by_slug)
+            .service(handlers::workflows::create)
             .service(handlers::workflows::get_all)
             .service(handlers::workflows::trigger)
             .service(handlers::workflows::get_history)

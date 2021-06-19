@@ -5,6 +5,23 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
+#[get("/api/workflow/{slg}")]
+pub async fn get_by_slug(
+    pool: web::Data<DbPool>,
+    web::Path(slg): web::Path<String>,
+    req: HttpRequest,
+    config: web::Data<WebConfig>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+    match check_auth(&req, config.app_secret.to_owned()) {
+        Some(_) => match repository::workflow::get_by_slug(&conn, &slg).await {
+            Ok(workflow) => HttpResponse::Ok().json(workflow),
+            Err(_) => HttpResponse::InternalServerError().finish(),
+        },
+        None => HttpResponse::Unauthorized().finish(),
+    }
+}
+
 #[get("/api/workflows/history/{id}")]
 pub async fn get_single(
     pool: web::Data<DbPool>,
@@ -22,86 +39,42 @@ pub async fn get_all(
     req: HttpRequest,
     config: web::Data<WebConfig>,
 ) -> impl Responder {
-    use crate::schema::workflows::dsl::*;
-
-    let sub = check_auth(&req, config.app_secret.to_owned());
-    if let None = sub {
-        return HttpResponse::Unauthorized().finish();
-    }
-
-    let conn = pool.get().expect("couldn't get db connection from pool");
-
-    match workflows.select((id, name, slug, secret, content)).load::<(
-        String,
-        String,
-        String,
-        String,
-        String,
-    )>(&conn)
-    {
-        Ok(results) => {
-            let result_vec: Vec<models::Workflow> = results
-                .into_iter()
-                .map(|x| models::Workflow {
-                    id: x.0.to_owned(),
-                    name: x.1.to_owned(),
-                    slug: x.2.to_owned(),
-                    secret: x.3.to_owned(),
-                    content: x.4.to_owned(),
-                })
-                .rev()
-                .collect();
-
-            HttpResponse::Ok().json(result_vec)
+    let conn = pool.get().unwrap();
+    match check_auth(&req, config.app_secret.to_owned()) {
+        Some(_) => {
+            let results = repository::workflow::get_all(&conn).await.unwrap();
+            HttpResponse::Ok().json(results)
         }
-        _ => {
-            let err_message = HttpErrorMessage {
-                code: 400,
-                message: "internal error".to_owned(),
-            };
-
-            HttpResponse::InternalServerError().json(err_message)
-        }
+        None => HttpResponse::Unauthorized().finish(),
     }
 }
 
-#[post("/api/workflow")]
+#[post("/api/workflows")]
 pub async fn create(
     pool: web::Data<DbPool>,
     form: web::Json<WorkflowRequest>,
     req: HttpRequest,
     config: web::Data<WebConfig>,
 ) -> impl Responder {
-    use crate::schema::workflows::dsl::*;
+    let conn = pool.get().unwrap();
+    match check_auth(&req, config.app_secret.to_owned()) {
+        Some(_) => {
+            let uid = Uuid::new_v4().to_string();
+            let secret = calculate_sha256_signature(uid.to_owned(), &config.app_secret).unwrap();
+            let workflow = models::Workflow {
+                id: uid,
+                name: form.name.to_owned(),
+                slug: form.slug.to_owned(),
+                secret,
+                content: form.content.to_owned(),
+            };
 
-    let sub = check_auth(&req, config.app_secret.to_owned());
-    if let None = sub {
-        return HttpResponse::Unauthorized().finish();
-    }
-
-    let conn = pool.get().expect("couldn't get db connection from pool");
-    let sha_256_secret =
-        calculate_sha256_signature(Uuid::new_v4().to_string(), config.app_secret.to_owned())
-            .unwrap();
-    let workflow = models::Workflow {
-        id: Uuid::new_v4().to_string(),
-        name: form.name.to_owned(),
-        slug: form.slug.to_owned(),
-        secret: sha_256_secret,
-        content: form.content.to_owned(),
-    };
-
-    if let Err(err) = diesel::insert_into(workflows)
-        .values(&workflow)
-        .execute(&conn)
-    {
-        let err_message = HttpErrorMessage {
-            code: 400,
-            message: format!("{}", err),
-        };
-        HttpResponse::BadRequest().json(err_message)
-    } else {
-        HttpResponse::Ok().json(workflow)
+            match repository::workflow::insert(&conn, workflow).await {
+                Ok(workflow) => HttpResponse::Ok().json(workflow),
+                Err(_) => HttpResponse::InternalServerError().finish(),
+            }
+        }
+        None => HttpResponse::Unauthorized().finish(),
     }
 }
 
@@ -130,7 +103,7 @@ pub async fn trigger(
     match signature {
         Some(_signature) => {
             let raw = String::from_utf8(bytes.to_vec()).expect("error parsing raw body");
-            let verified_signature = calculate_sha256_signature(raw, workflow.1);
+            let verified_signature = calculate_sha256_signature(raw, &workflow.1);
 
             match verified_signature {
                 Some(data) => {
@@ -181,7 +154,7 @@ pub async fn trigger(
     }
 }
 
-#[get("/api/workflows/history/{id}")]
+#[get("/api/workflows/{id}/history")]
 pub async fn get_history(
     pool: web::Data<DbPool>,
     web::Path(id): web::Path<String>,
