@@ -1,4 +1,6 @@
+use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::schema::*;
 
@@ -18,13 +20,30 @@ pub struct NewUser {
     pub password: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Clone, Queryable, Insertable, Serialize, Deserialize)]
+#[table_name = "workflows"]
 pub struct Workflow {
     pub id: String,
     pub name: String,
     pub slug: String,
     pub secret: String,
     pub content: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+impl Default for Workflow {
+    fn default() -> Self {
+        Workflow {
+            id: Uuid::new_v4().to_string(),
+            name: String::from("name"),
+            slug: String::from("slug"),
+            secret: String::from("secret"),
+            content: String::from("content"),
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]

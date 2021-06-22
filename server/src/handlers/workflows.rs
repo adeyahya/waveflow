@@ -42,8 +42,10 @@ pub async fn get_all(
     let conn = pool.get().unwrap();
     match check_auth(&req, config.app_secret.to_owned()) {
         Some(_) => {
-            let results = repository::workflow::get_all(&conn).await.unwrap();
-            HttpResponse::Ok().json(results)
+            let result = repository::workflow::get_all(&conn)
+                .await
+                .unwrap_or_default();
+            HttpResponse::Ok().json(result)
         }
         None => HttpResponse::Unauthorized().finish(),
     }
@@ -62,16 +64,16 @@ pub async fn create(
             let uid = Uuid::new_v4().to_string();
             let secret = calculate_sha256_signature(uid.to_owned(), &config.app_secret).unwrap();
             let workflow = models::Workflow {
-                id: uid,
                 name: form.name.to_owned(),
                 slug: form.slug.to_owned(),
                 secret,
                 content: form.content.to_owned(),
+                ..Default::default()
             };
 
             match repository::workflow::insert(&conn, workflow).await {
                 Ok(workflow) => HttpResponse::Ok().json(workflow),
-                Err(_) => HttpResponse::InternalServerError().finish(),
+                Err(_) => HttpResponse::BadRequest().finish(),
             }
         }
         None => HttpResponse::Unauthorized().finish(),
